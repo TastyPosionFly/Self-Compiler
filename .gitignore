@@ -31,4 +31,9 @@
 *.out
 *.app
 
+.idea
+*.iws
+*.iml
+*.ipr
+
 cmake-build/
