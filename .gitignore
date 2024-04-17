@@ -37,3 +37,4 @@
 *.ipr
 
 cmake-build/
+cmake-build-debug/
