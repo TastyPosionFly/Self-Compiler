@@ -24,10 +24,15 @@ class DataBase{
 private:
     unordered_set<string> operatorSet;
     unordered_set<string> keywordSet;
+    unordered_set<string> preprocessSet;
 public:
     DataBase(){
         operatorSet = {
                 "+", "-", "*", "/", ">", ">=", "<", "<=", "==", "!", "&&", "||"
+        };
+        preprocessSet = {
+                "+", "-", "*", "/", ">", ">=", "<", "<=", "==", "!", "&&", "||", "=",
+                "(", ")", "{", "}"
         };
         keywordSet = {
                 "alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor",
@@ -53,6 +58,11 @@ public:
     // 获取关键字集合
     const unordered_set<string>& getKeywordSet() const {
         return keywordSet;
+    }
+
+    //获取可能没有被空格分开的字符
+    const unordered_set<string>& getPreprocessSet() const{
+        return preprocessSet;
     }
 };
 

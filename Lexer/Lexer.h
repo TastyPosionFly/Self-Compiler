@@ -65,6 +65,7 @@ public:
         DataBase dataBase;
         operatorSet = dataBase.getOperatorSet();
         keywordSet = dataBase.getKeywordSet();
+        preprocessSet = dataBase.getPreprocessSet();
     };
     vector<Token> tokenSize();
     static string tokenTypeToString(TokenType type);
@@ -76,6 +77,7 @@ private:
     bool isIdentifier(const string& str);
     bool isNumber(const string& str);
     bool isOperator(const string& str);
+    bool isOperator_char(const char& c);
     bool isSemicolon(const string& str);
     bool isLeftParen(const string& str);
     bool isRightParen(const string& str);
@@ -89,6 +91,7 @@ private:
     string input;
     unordered_set<string> operatorSet;
     unordered_set<string> keywordSet;
+    unordered_set<string> preprocessSet;
 };
 
 

@@ -5,7 +5,7 @@ using namespace std;
 
 int main(){
     // 输入源代码
-    string input = "int x = 10; float y = 20.5; (12);";
+    string input = "x=1+2;";
 
     // 创建词法分析器对象
     Lexer lexer(input);
@@ -20,4 +20,10 @@ int main(){
     }
 
     return 0;
+
+//    int main(){
+//        int x = 2;
+//        x = x+3;
+//        return x;
+//    }
 }

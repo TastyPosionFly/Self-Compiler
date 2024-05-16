@@ -9,8 +9,16 @@ find_package(Qt6 COMPONENTS Widgets REQUIRED)
 set(CMAKE_AUTOMOC ON)
 
 add_executable(Lexer
-    Lexer/main.cpp
+        Lexer/main.cpp
         Lexer/Lexer.cpp
+)
+
+add_executable(Parser
+        Parser/main.cpp
+        Parser/parser.h
+        Parser/parser.cpp
+        Parser/LRParserGenerator.cpp
+        Parser/LRParserGenerator.h
 )
 
 add_executable(GUI

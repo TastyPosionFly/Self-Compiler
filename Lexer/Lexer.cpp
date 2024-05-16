@@ -7,22 +7,35 @@ string Lexer::preprocess(const string &input) {
     string result;
     char prev = '\0'; // Previous character
 
-    for (char curr : input) {
-        if (curr == '(' || curr == ')' || curr == '{' || curr == '}'
-            || curr == '+' || curr == '-' || curr == '*' || curr == '/') {
-            // If the previous character is not a space, add a space before the operator
-            if (!isspace(prev) && prev != '\0') {
+    for (size_t i = 0; i < input.size() ; ++i) {
+        char curr = input[i];
+        string token;
+        token.push_back(curr);
+
+        if (i+1 <= input.size() && preprocessSet.count(token + input[i+1]) > 0){
+            if (!isspace(prev) && prev != '\0'){
                 result.push_back(' ');
             }
-            result.push_back(curr);
-            // If the next character is not a space, add a space after the operator
-            if (!isspace(input[result.size()]) && input[result.size()] != '\0') {
+            result += token + input[i+1];
+            if (!isspace(input[i+2]) && input[i+2] != '\0'){
                 result.push_back(' ');
             }
+            prev = input[i+2];
+            ++i;
+        } else if (preprocessSet.count(token) > 0){
+            if (!isspace(prev) && prev != '\0'){
+                result.push_back(' ');
+            }
+            result += token;
+            if (!isspace(input[i+1]) && input[i+1] != '\0'){
+                result.push_back(' ');
+            }
+            prev = curr;
         } else {
-            result.push_back(curr);
+            result += token;
+            prev = curr;
         }
-        prev = curr;
+
     }
 
     return result;
@@ -35,7 +48,8 @@ vector<Token> Lexer::tokenSize() {
 
     while(getline(ss, statement, ';')){
         if (!statement.empty()){
-            vector<Token> statementTokens = getStatementTokens(statement);
+            string processStatement = preprocess(statement);
+            vector<Token> statementTokens = getStatementTokens(processStatement);
             tokens.insert(tokens.end(), statementTokens.begin(), statementTokens.end());
             tokens.push_back(Token(TokenType::SEMICOLON, ";"));
         }
@@ -123,6 +137,11 @@ bool Lexer::isSemicolon(const string &str) {
     if (str.empty()) return false;
     if (str != ";") return false;
     return true;
+}
+
+bool Lexer::isOperator_char(const char &c) {
+    if (c == ' ') return false;
+
 }
 
 bool Lexer::isOperator(const string &str) {
