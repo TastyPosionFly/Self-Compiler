@@ -10,6 +10,8 @@
 #include <QSplitter>
 
 #include "../Lexer/Lexer.h"
+#include "../Parser/LRParserGenerator.h"
+#include "../Parser/parser.h"
 
 class GUI: public QWidget{
     Q_OBJECT

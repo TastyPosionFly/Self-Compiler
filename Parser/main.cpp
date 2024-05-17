@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include "LRParserGenerator.h"
+#include "parser.h"
 
 using namespace std;
 
@@ -77,6 +78,41 @@ int main() {
     generator.printProductions();
     generator.printStates();
     generator.printTables();
+    cout<< "ACTION TABLE AND GOTO TABLE build success" << endl;
+
+    map<pair<int, LRParserGenerator::Symbol>, pair<char, int>> actionTable = generator.getActionTable();
+    map<pair<int, LRParserGenerator::Symbol>, int> gotoTable = generator.getGotoTable();
+
+    parser parser(productions, actionTable, gotoTable);
+
+    string inputString;
+    cout << "Enter a string to parse:" << endl;
+    cin.ignore(); // 忽略之前输入的换行符
+    getline(cin, inputString); // 读取整行输入
+
+    // 将输入字符串转换为符号向量
+    vector<LRParserGenerator::Symbol> inputSymbols;
+    stringstream inputStream(inputString);
+    string token;
+    while (inputStream >> token) {
+        LRParserGenerator::Symbol symbol = { token, LRParserGenerator::SymbolType::TERMINAL };
+        inputSymbols.push_back(symbol);
+    }
+
+    inputSymbols.push_back({"$", LRParserGenerator::SymbolType::TERMINAL});
+
+    cout << "Input Symbols: ";
+    for (const auto& symbol : inputSymbols) {
+        cout << symbol.name << " ";
+    }
+    cout << endl;
+
+// 在生成的 LR 分析器上调用解析函数
+    if (parser.parse(inputSymbols)) {
+        cout << "Input is successfully parsed." << endl;
+    } else {
+        cerr << "Syntax error in input string." << endl;
+    }
 
     return 0;
 }
