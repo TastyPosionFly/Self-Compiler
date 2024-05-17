@@ -124,6 +124,8 @@ public:
     map<pair<int, Symbol>, pair<char, int>> actionTable;
     map<pair<int, Symbol>, int> gotoTable;
 
+    LRParserGenerator() = default;
+
     LRParserGenerator(const vector<Production> &productions, const vector<Symbol> &terminals,
                       const vector<Symbol> &nonTerminals, const Symbol &startSymbol)
             : productions(productions), terminals(terminals), nonTerminals(nonTerminals), startSymbol(startSymbol) {}
@@ -193,6 +195,10 @@ public:
 
     map<pair<int, Symbol>, int> getGotoTable() {
         return gotoTable;
+    }
+
+    vector<Production> getProduction(){
+        return productions;
     }
 
 };

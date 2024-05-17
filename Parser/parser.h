@@ -27,7 +27,6 @@ public:
             : productions(productions), actionTable(actionTable), gotoTable(gotoTable) {}
 
     bool parse(const std::vector<LRParserGenerator::Symbol>& input);
-
 };
 
 

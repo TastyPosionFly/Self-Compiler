@@ -3,16 +3,16 @@
 #include "LRParserGenerator.h"
 
 // 计算符号的FIRST集合
-std::set<LRParserGenerator::Symbol> LRParserGenerator::first(const std::vector<Symbol>& symbols) {
+std::set<LRParserGenerator::Symbol> LRParserGenerator::first(const std::vector<Symbol> &symbols) {
     std::set<Symbol> firstSet;
 
-    for (const Symbol& symbol : symbols) {
+    for (const Symbol &symbol: symbols) {
         if (symbol.type == SymbolType::TERMINAL) {
             firstSet.insert(symbol);
             break;
         } else {
             std::set<Symbol> firstOfSymbol = LRParserGenerator::firstOfSymbol(symbol);
-            for (const Symbol& s : firstOfSymbol) {
+            for (const Symbol &s: firstOfSymbol) {
                 if (s.name != "epsilon") {
                     firstSet.insert(s);
                 }
@@ -27,7 +27,7 @@ std::set<LRParserGenerator::Symbol> LRParserGenerator::first(const std::vector<S
     return firstSet;
 }
 
-std::set<LRParserGenerator::Symbol> LRParserGenerator::firstOfSymbol(const LRParserGenerator::Symbol& symbol) {
+std::set<LRParserGenerator::Symbol> LRParserGenerator::firstOfSymbol(const LRParserGenerator::Symbol &symbol) {
     if (firstCache.find(symbol) != firstCache.end()) {
         return firstCache[symbol];
     }
@@ -36,7 +36,7 @@ std::set<LRParserGenerator::Symbol> LRParserGenerator::firstOfSymbol(const LRPar
     if (symbol.type == SymbolType::TERMINAL) {
         firstSet.insert(symbol);
     } else {
-        for (const Production& prod : productions) {
+        for (const Production &prod: productions) {
             if (prod.lhs.name == symbol.name) {
                 std::set<Symbol> firstOfRhs = first(prod.rhs);
                 firstSet.insert(firstOfRhs.begin(), firstOfRhs.end());
@@ -48,7 +48,7 @@ std::set<LRParserGenerator::Symbol> LRParserGenerator::firstOfSymbol(const LRPar
     return firstSet;
 }
 
-std::set<LRParserGenerator::Symbol> LRParserGenerator::follow(const Symbol& symbol) {
+std::set<LRParserGenerator::Symbol> LRParserGenerator::follow(const Symbol &symbol) {
     if (followCache.find(symbol) != followCache.end()) {
         return followCache[symbol];
     }
@@ -57,7 +57,7 @@ std::set<LRParserGenerator::Symbol> LRParserGenerator::follow(const Symbol& symb
     if (symbol.name == startSymbol.name) {
         followSet.insert({"$", SymbolType::TERMINAL});
     }
-    for (const Production& prod : productions) {
+    for (const Production &prod: productions) {
         for (size_t i = 0; i < prod.rhs.size(); ++i) {
             if (prod.rhs[i].name == symbol.name) {
                 if (i + 1 < prod.rhs.size()) {
@@ -65,7 +65,8 @@ std::set<LRParserGenerator::Symbol> LRParserGenerator::follow(const Symbol& symb
                     followSet.insert(firstOfNext.begin(), firstOfNext.end());
                     followSet.erase({"epsilon", SymbolType::TERMINAL});
                 }
-                if (i + 1 == prod.rhs.size() || first({prod.rhs.begin() + i + 1, prod.rhs.end()}).count({"epsilon", SymbolType::TERMINAL})) {
+                if (i + 1 == prod.rhs.size() ||
+                    first({prod.rhs.begin() + i + 1, prod.rhs.end()}).count({"epsilon", SymbolType::TERMINAL})) {
                     std::set<Symbol> followOfLhs = follow(prod.lhs);
                     followSet.insert(followOfLhs.begin(), followOfLhs.end());
                 }
@@ -77,13 +78,13 @@ std::set<LRParserGenerator::Symbol> LRParserGenerator::follow(const Symbol& symb
     return followSet;
 }
 
-LRParserGenerator::LRItem LRParserGenerator::shiftDot(const LRParserGenerator::LRItem& item) {
+LRParserGenerator::LRItem LRParserGenerator::shiftDot(const LRParserGenerator::LRItem &item) {
     LRItem newItem = item;
     newItem.dotIndex++;
     return newItem;
 }
 
-std::set<LRParserGenerator::Symbol> LRParserGenerator::getSymbolsAfterDot(const LRParserGenerator::LRItem& item) {
+std::set<LRParserGenerator::Symbol> LRParserGenerator::getSymbolsAfterDot(const LRParserGenerator::LRItem &item) {
     std::set<Symbol> symbols;
     if (item.dotIndex < item.prod.rhs.size()) {
         symbols.insert(item.prod.rhs[item.dotIndex]);
@@ -91,11 +92,11 @@ std::set<LRParserGenerator::Symbol> LRParserGenerator::getSymbolsAfterDot(const 
     return symbols;
 }
 
-LRParserGenerator::LRState LRParserGenerator::closure(const LRParserGenerator::LRState& state) {
+LRParserGenerator::LRState LRParserGenerator::closure(const LRParserGenerator::LRState &state) {
     LRState closureState = state;
     std::stack<LRItem> itemStack;
 
-    for (const LRItem& lrItem: closureState.items) {
+    for (const LRItem &lrItem: closureState.items) {
         itemStack.push(lrItem);
     }
 
@@ -106,7 +107,7 @@ LRParserGenerator::LRState LRParserGenerator::closure(const LRParserGenerator::L
         if (currentItem.dotIndex < currentItem.prod.rhs.size()) {
             Symbol symbolAfterDot = currentItem.prod.rhs[currentItem.dotIndex];
             if (symbolAfterDot.type == SymbolType::NON_TERMINAL) {
-                for (const Production& prod : productions) {
+                for (const Production &prod: productions) {
                     if (prod.lhs.name == symbolAfterDot.name) {
                         LRItem newItem = {prod, 0};
                         if (closureState.items.find(newItem) == closureState.items.end()) {
@@ -122,9 +123,10 @@ LRParserGenerator::LRState LRParserGenerator::closure(const LRParserGenerator::L
     return closureState;
 }
 
-LRParserGenerator::LRState LRParserGenerator::goTo(const LRParserGenerator::LRState& state, const LRParserGenerator::Symbol& symbol) {
+LRParserGenerator::LRState
+LRParserGenerator::goTo(const LRParserGenerator::LRState &state, const LRParserGenerator::Symbol &symbol) {
     LRState nextState;
-    for (const LRItem& item: state.items) {
+    for (const LRItem &item: state.items) {
         if (item.dotIndex < item.prod.rhs.size() && item.prod.rhs[item.dotIndex].name == symbol.name) {
             LRItem shiftedItem = shiftDot(item);
             nextState.items.insert(shiftedItem);
@@ -134,8 +136,8 @@ LRParserGenerator::LRState LRParserGenerator::goTo(const LRParserGenerator::LRSt
 }
 
 void LRParserGenerator::buildLRItems() {
-    LRItem initialItem = { productions[0], 0 };
-    LRState initialState = { 0, {initialItem} };
+    LRItem initialItem = {productions[0], 0};
+    LRState initialState = {0, {initialItem}};
     LRState startState = closure(initialState);
     states.push_back(startState);
 
@@ -143,14 +145,14 @@ void LRParserGenerator::buildLRItems() {
     while (stateId < states.size()) {
         LRState currentState = states[stateId];
         currentState.stateId = stateId;
-        for (const Symbol& symbol: terminals) {
+        for (const Symbol &symbol: terminals) {
             LRState nextState = goTo(currentState, symbol);
             if (!nextState.items.empty() && std::find(states.begin(), states.end(), nextState) == states.end()) {
                 nextState.stateId = states.size();
                 states.push_back(nextState);
             }
         }
-        for (const Symbol& symbol : nonTerminals) {
+        for (const Symbol &symbol: nonTerminals) {
             LRState nextState = goTo(currentState, symbol);
             if (!nextState.items.empty() && std::find(states.begin(), states.end(), nextState) == states.end()) {
                 nextState.stateId = states.size();
@@ -164,20 +166,21 @@ void LRParserGenerator::buildLRItems() {
 void LRParserGenerator::buildActionTable() {
     for (int i = 0; i < states.size(); ++i) {
         LRState state = states[i];
-        for (const LRItem& item : state.items) {
+        for (const LRItem &item: state.items) {
             if (item.dotIndex == item.prod.rhs.size()) {
                 if (item.prod.lhs.name == startSymbol.name) {
                     actionTable[{i, {"$", SymbolType::TERMINAL}}] = {'A', 0};
                 } else {
                     std::set<Symbol> followSet = follow(item.prod.lhs);
-                    for (const Symbol& symbol : followSet) {
-                        int prodIndex = std::find(productions.begin(), productions.end(), item.prod) - productions.begin();
+                    for (const Symbol &symbol: followSet) {
+                        int prodIndex =
+                                std::find(productions.begin(), productions.end(), item.prod) - productions.begin();
                         actionTable[{i, symbol}] = {'R', prodIndex};
                     }
                 }
             }
         }
-        for (const Symbol& symbol : terminals) {
+        for (const Symbol &symbol: terminals) {
             LRState nextState = goTo(state, symbol);
             if (!nextState.items.empty()) {
                 int nextStateId = std::find(states.begin(), states.end(), nextState) - states.begin();
@@ -190,7 +193,7 @@ void LRParserGenerator::buildActionTable() {
 void LRParserGenerator::buildGotoTable() {
     for (int i = 0; i < states.size(); i++) {
         LRState state = states[i];
-        for (const Symbol& symbol : nonTerminals) {
+        for (const Symbol &symbol: nonTerminals) {
             LRState nextState = goTo(state, symbol);
             if (!nextState.items.empty()) {
                 int nextStateId = std::find(states.begin(), states.end(), nextState) - states.begin();
@@ -200,7 +203,7 @@ void LRParserGenerator::buildGotoTable() {
     }
 }
 
-void LRParserGenerator::readGrammar(const string& filename) {
+void LRParserGenerator::readGrammar(const string &filename) {
     ifstream file(filename);
     if (!file.is_open()) {
         cerr << "Error: Could not open file " << filename << endl;
@@ -223,7 +226,7 @@ void LRParserGenerator::readGrammar(const string& filename) {
         lhs.erase(lhs.find_last_not_of(" \n\r\t") + 1);
         lhs.erase(0, lhs.find_first_not_of(" \n\r\t"));
 
-        LRParserGenerator::Symbol lhsSymbol = { lhs, LRParserGenerator::SymbolType::NON_TERMINAL };
+        LRParserGenerator::Symbol lhsSymbol = {lhs, LRParserGenerator::SymbolType::NON_TERMINAL};
 
         // Split the right-hand side by '|'
         stringstream ss(rhs);
@@ -236,7 +239,7 @@ void LRParserGenerator::readGrammar(const string& filename) {
                 LRParserGenerator::SymbolType type = (isupper(symbolName[0])
                                                       ? LRParserGenerator::SymbolType::NON_TERMINAL
                                                       : LRParserGenerator::SymbolType::TERMINAL);
-                LRParserGenerator::Symbol symbol = { symbolName, type };
+                LRParserGenerator::Symbol symbol = {symbolName, type};
                 rhsSymbols.push_back(symbol);
                 if (type == LRParserGenerator::SymbolType::TERMINAL &&
                     find(terminals.begin(), terminals.end(), symbol) == terminals.end()) {
@@ -246,7 +249,7 @@ void LRParserGenerator::readGrammar(const string& filename) {
                     nonTerminals.push_back(symbol);
                 }
             }
-            LRParserGenerator::Production production = { lhsSymbol, rhsSymbols };
+            LRParserGenerator::Production production = {lhsSymbol, rhsSymbols};
             productions.push_back(production);
         }
     }
@@ -254,8 +257,9 @@ void LRParserGenerator::readGrammar(const string& filename) {
     file.close();
 
     // 扩展文法，和添加终止符
-    LRParserGenerator::Symbol startSymbol = { "S'", LRParserGenerator::SymbolType::NON_TERMINAL };
-    LRParserGenerator::Production startProduction = { startSymbol, { productions[0].lhs} };
+    LRParserGenerator::Symbol startSymbol_temp = {"S'", LRParserGenerator::SymbolType::NON_TERMINAL};
+    LRParserGenerator::Production startProduction = {startSymbol_temp, {productions[0].lhs}};
     productions.insert(productions.begin(), startProduction);
+    startSymbol = startSymbol_temp;
 
 }

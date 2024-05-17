@@ -4,17 +4,19 @@
 #include <string>
 #include <vector>
 #include "DataBase.h"
+#include "../Parser/LRParserGenerator.h"
 
 using namespace std;
 
-struct Token{
+struct Token {
     TokenType tokenType;
     string value;
 
-    Token(TokenType t, const string& v): tokenType(t), value(v){}
-    string toString(){
+    Token(TokenType t, const string &v) : tokenType(t), value(v) {}
+
+    string toString() {
         string type;
-        switch(tokenType) {
+        switch (tokenType) {
             case TokenType::IDENTIFIER:
                 type = "IDENTIFIER";
                 break;
@@ -61,31 +63,47 @@ struct Token{
 
 class Lexer {
 public:
-    explicit Lexer(const string& input): input(input){
+    explicit Lexer(const string &input) : input(input) {
         DataBase dataBase;
         operatorSet = dataBase.getOperatorSet();
         keywordSet = dataBase.getKeywordSet();
         preprocessSet = dataBase.getPreprocessSet();
     };
+
     vector<Token> tokenSize();
+
     static string tokenTypeToString(TokenType type);
 
 private:
-    string preprocess(const string& input);
-    vector<Token> getStatementTokens(const string& statement);
-    Token getToken(const string& tokenValue);
-    bool isIdentifier(const string& str);
-    bool isNumber(const string& str);
-    bool isOperator(const string& str);
-    bool isOperator_char(const char& c);
-    bool isSemicolon(const string& str);
-    bool isLeftParen(const string& str);
-    bool isRightParen(const string& str);
-    bool isKeyword(const string& str);
-    bool isString(const string& str);
-    bool isAssignment(const string& str);
-    bool isLeftBrace(const string& str);
-    bool isRightBrace(const string& str);
+    string preprocess(const string &input);
+
+    vector<Token> getStatementTokens(const string &statement);
+
+    Token getToken(const string &tokenValue);
+
+    bool isIdentifier(const string &str);
+
+    bool isNumber(const string &str);
+
+    bool isOperator(const string &str);
+
+    bool isOperator_char(const char &c);
+
+    bool isSemicolon(const string &str);
+
+    bool isLeftParen(const string &str);
+
+    bool isRightParen(const string &str);
+
+    bool isKeyword(const string &str);
+
+    bool isString(const string &str);
+
+    bool isAssignment(const string &str);
+
+    bool isLeftBrace(const string &str);
+
+    bool isRightBrace(const string &str);
 
 
     string input;
