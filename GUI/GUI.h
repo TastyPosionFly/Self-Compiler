@@ -31,7 +31,7 @@ private slots:
         for (Token token : tokens) {
             result += QString::fromStdString(token.toString()) + "\n";
         }
-        resultOutput->setText(result);;
+        resultOutput_code->setText(result);;
     }
 
     void analyzeSyntax() {
@@ -76,7 +76,7 @@ private slots:
                 result += "\n";
             }
         }
-        resultOutput->setText(result);
+        resultOutPut_syntax->setText(result);
     }
 
     void analyzeBoth() {
@@ -90,11 +90,12 @@ private:
     QPushButton *syntaxButton;
     QPushButton *bothButton;
     QSplitter *splitter;
-    QTextEdit *resultOutput;
+    QTextEdit *resultOutput_code;
+    QTextEdit *resultOutPut_syntax;
 
     LRParserGenerator lrParserGenerator;
 
-    string filename = "D:/Work/Self-Compiler/grammar.txt";
+    string filename = "../grammar.txt";
 
     void setupUI() {
         lrParserGenerator.generateParser(filename);
@@ -111,12 +112,16 @@ private:
         bothButton = new QPushButton("进行词法和语法分析", this);
         connect(bothButton, &QPushButton::clicked, this, &GUI::analyzeBoth);
 
-        resultOutput = new QTextEdit(this);
-        resultOutput->setReadOnly(true);
+        resultOutput_code = new QTextEdit(this);
+        resultOutput_code->setReadOnly(true);
+
+        resultOutPut_syntax = new QTextEdit(this);
+        resultOutPut_syntax->setReadOnly(true);
 
         splitter = new QSplitter(Qt::Horizontal, this);
         splitter->addWidget(codeInput);
-        splitter->addWidget(resultOutput);
+        splitter->addWidget(resultOutput_code);
+        splitter->addWidget(resultOutPut_syntax);
 
         QVBoxLayout *layout = new QVBoxLayout(this);
         layout->addWidget(splitter);
